@@ -16,7 +16,7 @@ rend.glClear()
 rend.glViewPort(width/4, height/4, width/2, height/2)
 
 #Background
-rend.glBackgroundTexture("textures\wood.bmp")
+rend.glBackgroundTexture("background\desk.bmp")
 rend.glClearBackground()
 
 
@@ -27,7 +27,7 @@ model1 = Model("models\model.obj",
               translate = (-1,0,-5),
               scale = (1.5,1.5,1.5))
 model1.LoadTexture("textures\model.bmp")
-""" model1.LoadNormalMap("textures\model_normal.bmp") """
+model1.LoadNormalMap("textures\model_normal.bmp")
 model1.SetShaders(shaders.vertexShader, shaders.normalMapShader)
 
 model2 = Model("models\model.obj",
