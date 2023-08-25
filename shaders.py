@@ -327,8 +327,8 @@ def darkRedShader(**kwargs):
     if intensity <= 0:
         intensity = 0
     
-    b = intensity  
-    g = intensity  
+    b = intensity*0.2  
+    g = intensity*0.2 
     
     # Valores de r, g, b basados en el espectro del arcoíris
     r = abs(sin(intensity * pi))  
@@ -360,9 +360,9 @@ def bnWShader(**kwargs):
     if intensity <= 0:
         intensity = 0
     
-    b = intensity  
-    g = intensity  
-    r = intensity  
+    b = intensity*0.2
+    g = intensity*0.2  
+    r = intensity*0.2 
     
     camForward = (camMatrix.item(0, 2),
                   camMatrix.item(1, 2),

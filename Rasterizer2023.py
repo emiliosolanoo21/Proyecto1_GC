@@ -45,10 +45,17 @@ axe.LoadTexture("textures/axe.bmp")
 axe.LoadNormalMap("textures/axeNormal.bmp")
 axe.SetShaders(shaders.vertexShader, shaders.normalMapShader)
 
+notepad = Model("models/notepad.obj",
+              translate = (-2.1,-3.04,-5),
+              rotate= (90,0,0),
+              scale = (0.075,0.075,0.075))
+notepad.LoadTexture("textures/notepad.bmp")
+notepad.SetShaders(shaders.vertexShader, shaders.darkRedShader)
 
 rend.glAddModel(hand)
 rend.glAddModel(bracelet)
 rend.glAddModel(axe)
+rend.glAddModel(notepad)
 
 # Se renderiza la escena
 rend.glRender()
