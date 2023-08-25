@@ -143,9 +143,9 @@ def gouradShader(**kwargs):
     dLight = np.array(dLight)
     intensity = np.dot(normal, -dLight)
     
-    b *= intensity
-    g *= intensity
-    r *= intensity
+    b *= intensity/0.2
+    g *= intensity/0.2
+    r *= intensity/0.2
     
     if b>=1.0:b=1.0
     if g>=1.0:g=1.0

@@ -22,22 +22,33 @@ rend.glClearBackground()
 """ rend.directionalLight = (0,0,-1) """
 
 # Cargamos los modelos que rederizaremos
-""" model1 = Model("models/bracelet.obj",
-              translate = (-1,0,-5),
-              scale = (1.5,1.5,1.5))
-model1.LoadTexture("textures/bracelet.bmp")
-model1.LoadNormalMap("textures/braceletNormal.bmp")
-model1.SetShaders(shaders.vertexShader, shaders.normalMapShader)
- """
-model2 = Model("models/hand.obj",
-              translate = (1,-2.5,-5),
-              rotate= (-50,75,120),
-              scale = (0.3,0.3,0.3))
-model2.LoadTexture("textures/gold.bmp")
-model2.SetShaders(shaders.vertexShader, shaders.fragmentShader)
+bracelet = Model("models/bracelet.obj",
+              translate = (1.15,0,-7),
+              rotate= (90,0,-1),
+              scale = (0.15,0.15,0.15))
+bracelet.LoadTexture("textures/bracelet.bmp")
+bracelet.LoadNormalMap("textures/braceletNormal.bmp")
+bracelet.SetShaders(shaders.vertexShader, shaders.normalMapShader)
 
-""" rend.glAddModel(model1) """
-rend.glAddModel(model2)
+hand = Model("models/hand.obj",
+              translate = (1,-2.05,-5),
+              rotate= (-50,75,150),
+              scale = (0.15,0.15,0.15))
+hand.LoadTexture("textures/skin.bmp")
+hand.SetShaders(shaders.vertexShader, shaders.gouradShader)
+
+axe = Model("models/axe.obj",
+              translate = (4,6,-7),
+              rotate= (0,0,120),
+              scale = (3.5,3.5,3.5))
+axe.LoadTexture("textures/axe.bmp")
+axe.LoadNormalMap("textures/axeNormal.bmp")
+axe.SetShaders(shaders.vertexShader, shaders.normalMapShader)
+
+
+rend.glAddModel(hand)
+rend.glAddModel(bracelet)
+rend.glAddModel(axe)
 
 # Se renderiza la escena
 rend.glRender()
