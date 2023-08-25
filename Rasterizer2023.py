@@ -46,16 +46,40 @@ axe.LoadNormalMap("textures/axeNormal.bmp")
 axe.SetShaders(shaders.vertexShader, shaders.normalMapShader)
 
 notepad = Model("models/notepad.obj",
-              translate = (-2.1,-3.04,-5),
+              translate = (-2.1,-3,-5),
               rotate= (90,0,0),
               scale = (0.075,0.075,0.075))
 notepad.LoadTexture("textures/notepad.bmp")
-notepad.SetShaders(shaders.vertexShader, shaders.darkRedShader)
+notepad.SetShaders(shaders.vertexShader, shaders.darkGlowShader)
+
+vpot = Model("models/vpot.obj",
+              translate = (3.5,1.7,-5),
+              rotate= (90,0,0),
+              scale = (0.05,0.05,0.05))
+vpot.LoadTexture("textures/terracota.bmp")
+vpot.SetShaders(shaders.vertexShader, shaders.bnWShader)
+
+vpot2 = Model("models/vpot.obj",
+              translate = (3.5,0.45,-5),
+              rotate= (90,0,0),
+              scale = (0.05,0.05,0.05))
+vpot2.LoadTexture("textures/terracota.bmp")
+vpot2.SetShaders(shaders.vertexShader, shaders.darkRedShader)
+
+vpot3 = Model("models/vpot.obj",
+              translate = (3.5,-0.8,-5),
+              rotate= (90,0,0),
+              scale = (0.05,0.05,0.05))
+vpot3.LoadTexture("textures/terracota.bmp")
+vpot3.SetShaders(shaders.vertexShader, shaders.fragmentShader)
 
 rend.glAddModel(hand)
 rend.glAddModel(bracelet)
 rend.glAddModel(axe)
 rend.glAddModel(notepad)
+rend.glAddModel(vpot)
+rend.glAddModel(vpot2)
+rend.glAddModel(vpot3)
 
 # Se renderiza la escena
 rend.glRender()

@@ -331,7 +331,7 @@ def darkRedShader(**kwargs):
     g = intensity*0.2 
     
     # Valores de r, g, b basados en el espectro del arcoíris
-    r = abs(sin(intensity * pi))  
+    r = abs(sin(intensity * pi))*2  
     r = max(0, min(1, r))
     
     return r, g, b
@@ -360,20 +360,20 @@ def bnWShader(**kwargs):
     if intensity <= 0:
         intensity = 0
     
-    b = intensity*0.2
-    g = intensity*0.2  
-    r = intensity*0.2 
+    b = intensity/0.2
+    g = intensity/0.2
+    r = intensity/0.2
     
     camForward = (camMatrix.item(0, 2),
                   camMatrix.item(1, 2),
                   camMatrix.item(2, 2))
     
-    specular = np.dot(np.array(normal), np.array(camForward))
+    specular = np.dot(np.array(normal), np.array(camForward)) * 0.5
     
     # Brillo especular
-    if specular > 0:
-        specular_power = 32  #Cambiar para administrar concentración de brillo
-        specular_intensity = (specular ** specular_power) * 0.5
+    if specular < 0:
+        specular_power = 75 #Cambiar para administrar concentración de brillo
+        specular_intensity = (specular ** specular_power)
         r += specular_intensity
     
 
