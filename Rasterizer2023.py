@@ -71,7 +71,7 @@ vpot3 = Model("models/vpot.obj",
               rotate= (90,0,0),
               scale = (0.05,0.05,0.05))
 vpot3.LoadTexture("textures/terracota.bmp")
-vpot3.SetShaders(shaders.vertexShader, shaders.fragmentShader)
+vpot3.SetShaders(shaders.vertexShader, shaders.negativeShader)
 
 rend.glAddModel(hand)
 rend.glAddModel(bracelet)

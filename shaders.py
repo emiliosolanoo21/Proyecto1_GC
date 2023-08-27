@@ -521,3 +521,55 @@ def normalMapShader(**kwargs):
     else:
         return [0,0,0]
 
+def negativeShader(**kwargs):
+    dLight = kwargs["dLight"]
+    nA, nB, nC = kwargs["normals"]
+    tA, tB, tC = kwargs["texCoords"]
+    texture = kwargs["texture"]
+    u, v, w = kwargs["bCoords"]
+    modelMatrix = kwargs["modelMatrix"]
+    
+    b=1.0
+    g=1.0
+    r=1.0
+    
+    if texture != None:
+        
+        tU = u*tA[0] + v*tB[0] + w*tC[0]
+        tV = u*tA[1] + v*tB[1] + w*tC[1]
+        
+        textureColor = texture.getColor(tU, tV)
+        b*=textureColor[2]
+        g*=textureColor[1]
+        r*=textureColor[0]
+    
+    normal = [u*nA[0] + v*nB[0] + w*nC[0],
+              u*nA[1] + v*nB[1] + w*nC[1],
+              u*nA[2] + v*nB[2] + w*nC[2],
+              0]
+    
+    normal = modelMatrix @ normal
+    normal = normal.tolist()[0]
+    normal = [normal[0], normal[1], normal[2]]
+    
+    dLight = np.array(dLight)
+    intensity = np.dot(normal, -dLight)
+    
+    b *= intensity/0.2
+    g *= intensity/0.2
+    r *= intensity/0.2
+    
+    if b>=1.0:b=1.0
+    if g>=1.0:g=1.0
+    if r>=1.0:r=1.0
+    
+    if intensity > 0:
+        r = 1.0-r
+        g = 1.0-g
+        b = 1.0-b
+        r = max(0.0, min(1.0,r))
+        g = max(0.0, min(1.0,g))
+        b = max(0.0, min(1.0,b))
+        return r,g,b
+    else:
+        return [0,0,0]

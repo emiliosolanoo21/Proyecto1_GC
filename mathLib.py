@@ -1,10 +1,29 @@
 from math import isclose
 
+def MxM(m1, m2):
+    r = [[0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]]
+
+    for i in range(len(m1)):
+        for j in range(len(m2[0])):
+            for k in range(len(m1[0])):
+                r[i][j] += m1[i][k]*m2[k][j]
+    return r
+
+def MxV(m, v):
+    r = [0, 0, 0, 0]
+    for i in range(len(m)):
+        for j in range(len(m[0])):
+            r[i] += m[i][j]*v[j]
+    return r
+
 def barycentricCoords(A, B, C, P):
     
-    # Se saca el área de los subtriángulos y del triángulo
-    # mayor usando el Shoelace Theorem, una fórmula que permite
-    # sacar el área de un polígono de cualquier cantidad de vértices.
+    # Se saca el ï¿½rea de los subtriï¿½ngulos y del triï¿½ngulo
+    # mayor usando el Shoelace Theorem, una fï¿½rmula que permite
+    # sacar el ï¿½rea de un polï¿½gono de cualquier cantidad de vï¿½rtices.
 
     areaPCB = abs((P[0]*C[1] + C[0]*B[1] + B[0]*P[1]) - 
                   (P[1]*C[0] + C[1]*B[0] + B[1]*P[0]))
@@ -18,19 +37,19 @@ def barycentricCoords(A, B, C, P):
     areaABC = abs((A[0]*B[1] + B[0]*C[1] + C[0]*A[1]) - 
                   (A[1]*B[0] + B[1]*C[0] + C[1]*A[0]))
 
-    # Si el área del triángulo es 0, retornar nada para
-    # prevenir división por 0.
+    # Si el ï¿½rea del triï¿½ngulo es 0, retornar nada para
+    # prevenir divisiï¿½n por 0.
     if areaABC == 0:
         return None
 
-    # Determinar las coordenadas baricéntricas dividiendo el 
-    # área de cada subtriángulo por el área del triángulo mayor.
+    # Determinar las coordenadas baricï¿½ntricas dividiendo el 
+    # ï¿½rea de cada subtriï¿½ngulo por el ï¿½rea del triï¿½ngulo mayor.
     u = areaPCB / areaABC
     v = areaACP / areaABC
     w = areaABP / areaABC
 
-    # Si cada coordenada está entre 0 a 1 y la suma de las tres
-    # es igual a 1, entonces son válidas.
+    # Si cada coordenada estï¿½ entre 0 a 1 y la suma de las tres
+    # es igual a 1, entonces son vï¿½lidas.
     if 0<=u<=1 and 0<=v<=1 and 0<=w<=1 and isclose(u+v+w, 1.0):
         return (u, v, w)
     else:
