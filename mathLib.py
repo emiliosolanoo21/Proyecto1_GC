@@ -13,12 +13,21 @@ def MxM(m1, m2):
                 r[i][j] += m1[i][k]*m2[k][j]
     return r
 
-def MxV(m, v):
-    r = [0, 0, 0, 0]
-    for i in range(len(m)):
-        for j in range(len(m[0])):
-            r[i] += m[i][j]*v[j]
-    return r
+def MxV(v, m):
+    if len(v) == len(m):
+        C = [0,0,0,0]
+
+        for i in range(len(v)):
+            for j in range(len(m[0])):
+                C[i] += m[i][j] * v[j]
+
+        return C
+
+def MsubM(A,B):
+     if isinstance(A,list):
+         return [ MsubM(ra,rb) for ra,rb in zip(A,B) ]
+     else:
+         return A-B
 
 def barycentricCoords(A, B, C, P):
     
@@ -56,19 +65,22 @@ def barycentricCoords(A, B, C, P):
     else:
         return None
 
+#Menor de la matriz
 def minor(matrix,i,j):
-    return [row[:j] + row[j+1:] for row in (matrix[:i]+matrix[i+1:])] #minor matrix
+    return [row[:j] + row[j+1:] for row in (matrix[:i]+matrix[i+1:])]
 
-def det(matrix):
+#Determinante
+def determinant(matrix):
     if len(matrix) == 2: #case for 2x2 matrix
         return matrix[0][0]*matrix[1][1]-matrix[0][1]*matrix[1][0]
-    determinant = 0
+    det = 0
     for c in range(len(matrix)):
-        determinant += ((-1)**c)*matrix[0][c]*det(minor(matrix,0,c))
-    return determinant
+        det += ((-1)**c)*matrix[0][c]*determinant(minor(matrix,0,c))
+    return det
 
+#Inversa de la matriz
 def inverseMatrix(mx):
-    det = det(mx)
+    det = determinant(mx)
     if(det==0):
         print('Determinant is zero')
         return
@@ -77,35 +89,46 @@ def inverseMatrix(mx):
                 [-1*mx[1][0]/det, mx[0][0]/det]]
     cofactors = []
     for i in range(len(mx)):
-        cofactRow = []
+        cRow = []
         for j in range(len(mx)):
             minorValue = minor(mx,i,j)
-            cofactRow.append(((-1)**(i+j)) * det(minorValue))
-        cofactors.append(cofactRow)
+            cRow.append(((-1)**(i+j)) * determinant(minorValue))
+        cofactors.append(cRow)
         
-    inverse = list(map(list,zip(*cofactors))) #gets the transpose of the matrix
+    inverse = list(map(list,zip(*cofactors)))
     for i in range(len(inverse)):
         for j in range(len(inverse)):
             inverse[i][j] = inverse[i][j]/det
     return inverse
 
+#Resta de matrices
 def substractV(a,b):
-    return (a[0]-b[0], a[1]-b[1], a[2]-b[2])
+    return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]
 
+def substractV2(a,b):
+    r = [a[0]-b[0], a[1]-b[1]]
+    if r == 0:
+        return 0.001
+    else:
+        return r
+
+#Producto cruz
 def crossProd(a,b):
     cross_product = [a[1] * b[2] - a[2] * b[1],
                      a[2] * b[0] - a[0] * b[2],
                      a[0] * b[1] - a[1] * b[0]]
     return cross_product
 
+#Normalizacion
 def normalizeV(vector):
     vectorList = list(vector)
-    magnitude = mt.sqrt(sum(e ** 2 for e in vectorList))
-    if magnitude == 0: #error if magnitude is 0
+    mag = mt.sqrt(sum(e ** 2 for e in vectorList))
+    if mag == 0: #error if magnitude is 0
         print("Unable to normalize")
     
-    normVector = [e / magnitude for e in vectorList]
+    normVector = [e / mag for e in vectorList]
     return tuple(normVector)
-     
+
+#Producto punto     
 def dotProd(v1, v2):
-    return sum(x*y for x, y in zip(v1, v2))    
+    return sum(x*y for x, y in zip(v1, v2))

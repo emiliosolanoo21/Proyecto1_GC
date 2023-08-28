@@ -1,8 +1,6 @@
 from math import cos, pi, sin, tan
 
-import numpy as np
-
-from mathLib import barycentricCoords
+import mathLib as ml
 from obj import Obj
 from support import *
 from texture import Texture
@@ -143,19 +141,23 @@ class Renderer(object):
         minY = round(min(A[1], B[1], C[1]))
         maxY = round(max(A[1], B[1], C[1]))
         
-        edge1 = np.subtract(uB, uA)
-        edge2 = np.subtract(uC, uA)
+        edge1 = ml.substractV(uB, uA)
+        edge2 = ml.substractV(uC, uA)
         
-        deltaUV1 = np.subtract(texCoords[1], texCoords[0])
-        deltaUV2 = np.subtract(texCoords[2], texCoords[0])
+        deltaUV1 = ml.substractV2(texCoords[1], texCoords[0])
+        deltaUV2 = ml.substractV2(texCoords[2], texCoords[0])
         
-        f = 1/(deltaUV1[0]*deltaUV2[1] - deltaUV2[0]*deltaUV1[1])
+        r = deltaUV1[0]*deltaUV2[1] - deltaUV2[0]*deltaUV1[1]
+        if r == 0:
+            r = 0.001
+        
+        f = 1.0/(r)
         
         tangentVector = [f*(deltaUV2[1]-edge1[0]-deltaUV1[1]*edge2[0]),
                          f*(deltaUV2[1]-edge1[1]-deltaUV1[1]*edge2[1]),
                          f*(deltaUV2[1]-edge1[2]-deltaUV1[1]*edge2[2])]
         
-        tangentVector = tangentVector/np.linalg.norm(tangentVector)
+        tangentVector = ml.normalizeV(tangentVector)
 
         # Para cada pixel dentro del bounding box
         for x in range(minX, maxX + 1):
@@ -164,7 +166,7 @@ class Renderer(object):
                 if (0 <= x < self.width) and (0 <= y < self.height):
 
                     P = (x,y)
-                    bCoords = barycentricCoords(A, B, C, P)
+                    bCoords = ml.barycentricCoords(A, B, C, P)
 
                     # Si se obtienen coordenadas baric�ntricas v�lidas para este punto
                     if bCoords != None:
@@ -253,36 +255,36 @@ class Renderer(object):
         self.vpWidth = int(width)
         self.vpHeight = int(height)
         
-        self.vpMatrix = np.matrix([[self.vpWidth/2,0,0,self.vpX+self.vpWidth/2],
+        self.vpMatrix = [[self.vpWidth/2,0,0,self.vpX+self.vpWidth/2],
                                    [0,self.vpHeight/2,0,self.vpY+self.vpHeight/2],
                                    [0,0,0.5,0.5],
-                                   [0,0,0,1]])
+                                   [0,0,0,1]]
 
     def glCamMatrix(self, translate = (0,0,0), rotate = (0,0,0)):
         #Crea matrix de camara
         self.camMatrix = self.glModelMatrix(translate, rotate)
         
         #Matriz de vista es igual a la inversa de la camara
-        self.viewMatrix = np.linalg.inv(self.camMatrix)
+        self.viewMatrix = ml.inverseMatrix(self.camMatrix)
           
     def glLookAt(self, camPos = (0,0,0), eyePos = (0,0,0)):
         worldUp = (0,1,0)
         
-        forward = np.subtract(camPos, eyePos)
-        forward = forward / np.linalg.norm(forward)
+        forward = ml.substractV(camPos, eyePos)
+        forward = ml.normalizeV(forward)
         
-        right = np.cross(worldUp, forward)
-        right = right / np.linalg.norm(right)
+        right = ml.crossProd(worldUp, forward)
+        right = ml.normalizeV(right)
         
-        up = np.cross(forward, right)
-        up = up/np.linalg.norm(up)
+        up = ml.crossProd(forward, right)
+        up = ml.normalizeV(up)
         
-        self.camMatrix = np.matrix([[right[0],up[0],forward[0],camPos[0]],
+        self.camMatrix = [[right[0],up[0],forward[0],camPos[0]],
                                     [right[1],up[1],forward[1],camPos[1]],
                                     [right[2],up[2],forward[2],camPos[2]],
-                                    [0,0,0,1]])
+                                    [0,0,0,1]]
         
-        self.viewMatrix = np.linalg.inv(self.camMatrix)
+        self.viewMatrix = ml.inverseMatrix(self.camMatrix)
         
     def glProjectionMatrix(self, fov = 60, n = 0.1, f = 1000):
         aspectRatio = self.vpWidth/self.vpHeight
@@ -291,30 +293,30 @@ class Renderer(object):
         
         r = t*aspectRatio
         
-        self.projectionMatrix = np.matrix([[n/r,0,0,0],
+        self.projectionMatrix = [[n/r,0,0,0],
                                            [0,n/t,0,0],
                                            [0,0,-(f+n)/(f-n),(-2*f*n)/(f-n)],
-                                           [0,0,-1,0]])
+                                           [0,0,-1,0]]
     
     def glModelMatrix(self, translate = (0,0,0), rotate = (0,0,0), scale = (1,1,1)):
 
         # Matriz de traslaci�n
-        translation = np.matrix([[1,0,0,translate[0]],
+        translation = [[1,0,0,translate[0]],
                                  [0,1,0,translate[1]],
                                  [0,0,1,translate[2]],
-                                 [0,0,0,1]])
+                                 [0,0,0,1]]
 
         # Matrix de rotaci�n
         rotMat = self.glRotationMatrix(rotate[0], rotate[1], rotate[2])
 
         # Matriz de escala
-        scaleMat = np.matrix([[scale[0],0,0,0],
+        scaleMat = [[scale[0],0,0,0],
                               [0,scale[1],0,0],
                               [0,0,scale[2],0],
-                              [0,0,0,1]])
+                              [0,0,0,1]]
         
         # Se multiplican las tres para obtener la matriz del objeto final
-        return translation * rotMat * scaleMat
+        return ml.MxM(ml.MxM(translation, rotMat), scaleMat)
 
 
     def glRotationMatrix(self, pitch = 0, yaw = 0, roll = 0):
@@ -325,24 +327,23 @@ class Renderer(object):
         roll *= pi/180
 
         # Creamos la matriz de rotaci�n para cada eje.
-        pitchMat = np.matrix([[1,0,0,0],
+        pitchMat = [[1,0,0,0],
                               [0,cos(pitch),-sin(pitch),0],
                               [0,sin(pitch),cos(pitch),0],
-                              [0,0,0,1]])
+                              [0,0,0,1]]
 
-        yawMat = np.matrix([[cos(yaw),0,sin(yaw),0],
+        yawMat = [[cos(yaw),0,sin(yaw),0],
                             [0,1,0,0],
                             [-sin(yaw),0,cos(yaw),0],
-                            [0,0,0,1]])
+                            [0,0,0,1]]
 
-        rollMat = np.matrix([[cos(roll),-sin(roll),0,0],
+        rollMat = [[cos(roll),-sin(roll),0,0],
                              [sin(roll),cos(roll),0,0],
                              [0,0,1,0],
-                             [0,0,0,1]])
+                             [0,0,0,1]]
 
         # Se multiplican las tres matrices para obtener la matriz de rotaci�n final
-        return pitchMat * yawMat * rollMat
-
+        return ml.MxM(ml.MxM(pitchMat, yawMat), rollMat)
 
 
     def glLine(self, v0, v1, clr = None):

@@ -1,5 +1,4 @@
-import random
-import numpy as np
+import mathLib as ml
 from math import sin, pi
 
 #-----------------------------------------------------
@@ -17,10 +16,9 @@ def vertexShader(vertex, **kwargs):
           vertex[1],
           vertex[2],
           1]
-
-    vt = vpMatrix * projectionMatrix * viewMatrix * modelMatrix @ vt
-
-    vt = vt.tolist()[0]
+    
+    vt = ml.MxV(vt,ml.MxM(ml.MxM(ml.MxM(vpMatrix, projectionMatrix), viewMatrix), modelMatrix))
+    """ vt = vpMatrix * projectionMatrix * viewMatrix * modelMatrix @ vt """
 
     vt = [vt[0]/vt[3],
           vt[1]/vt[3],
@@ -44,9 +42,7 @@ def fatShader(vertex, **kwargs):
           vertex[2] + (normal[2]*blowAmount),
           1]
 
-    vt = vpMatrix * projectionMatrix * viewMatrix * modelMatrix @ vt
-
-    vt = vt.tolist()[0]
+    vt = ml.MxV(vt,ml.MxM(ml.MxM(ml.MxM(vpMatrix, projectionMatrix), viewMatrix), modelMatrix))
 
     vt = [vt[0]/vt[3],
           vt[1]/vt[3],
@@ -97,8 +93,10 @@ def flatShader(**kwargs):
         r*=textureColor[0]
     
     
-    dLight = np.array(dLight)
-    intensity = np.dot(normal, -dLight)
+    dLight = list(dLight)
+    for i in range(len(dLight)):
+        dLight[i] = -1 * dLight[i]
+    intensity = ml.dotProd(normal, dLight)
     
     b *= intensity
     g *= intensity
@@ -136,12 +134,13 @@ def gouradShader(**kwargs):
               u*nA[2] + v*nB[2] + w*nC[2],
               0]
     
-    normal = modelMatrix @ normal
-    normal = normal.tolist()[0]
+    normal = ml.MxV(normal, modelMatrix)
     normal = [normal[0], normal[1], normal[2]]
     
-    dLight = np.array(dLight)
-    intensity = np.dot(normal, -dLight)
+    dLight = list(dLight)
+    for i in range(len(dLight)):
+        dLight[i] = -1 * dLight[i]
+    intensity = ml.dotProd(normal, dLight)
     
     b *= intensity/0.2
     g *= intensity/0.2
@@ -181,8 +180,10 @@ def toonShader(**kwargs):
               u*nA[1] + v*nB[1] + w*nC[1],
               u*nA[2] + v*nB[2] + w*nC[2]]
     
-    dLight = np.array(dLight)
-    intensity = np.dot(normal, -dLight)
+    dLight = list(dLight)
+    for i in range(len(dLight)):
+        dLight[i] = -1 * dLight[i]
+    intensity = ml.dotProd(normal, dLight)
     
     if intensity <= 0.25:
         intensity = 0.2
@@ -227,8 +228,10 @@ def redShader(**kwargs):
               u*nA[1] + v*nB[1] + w*nC[1],
               u*nA[2] + v*nB[2] + w*nC[2]]
     
-    dLight = np.array(dLight)
-    intensity = np.dot(normal, -dLight)
+    dLight = list(dLight)
+    for i in range(len(dLight)):
+        dLight[i] = -1 * dLight[i]
+    intensity = ml.dotProd(normal, dLight)
     
     b *= intensity
     g *= intensity
@@ -271,8 +274,10 @@ def yellowGlowShader(**kwargs):
               u*nA[1] + v*nB[1] + w*nC[1],
               u*nA[2] + v*nB[2] + w*nC[2]]
     
-    dLight = np.array(dLight)
-    intensity = np.dot(normal, -dLight)
+    dLight = list(dLight)
+    for i in range(len(dLight)):
+        dLight[i] = -1 * dLight[i]
+    intensity = ml.dotProd(normal, dLight)
     
     if intensity <= 0:
         intensity = 0
@@ -281,11 +286,11 @@ def yellowGlowShader(**kwargs):
     g *= intensity
     r *= intensity
     
-    camForward = (camMatrix.item(0,2),
-                  camMatrix.item(1,2),
-                  camMatrix.item(2,2))
+    camForward = (camMatrix[0][2],
+                  camMatrix[1][2],
+                  camMatrix[2][2])
     
-    glowAmount = 1-np.dot(normal, camForward)
+    glowAmount = 1-ml.dotProd(normal, camForward)
     
     if glowAmount <= 0: 
         glowAmount = 0
@@ -317,12 +322,13 @@ def darkRedShader(**kwargs):
               u*nA[2] + v*nB[2] + w*nC[2],
               0]
     
-    normal = modelMatrix @ normal
-    normal = normal.tolist()[0]
+    normal = ml.MxV(normal, modelMatrix)
     normal = [normal[0], normal[1], normal[2]]
     
-    dLight = np.array(dLight)
-    intensity = np.dot(normal, -dLight)
+    dLight = list(dLight)
+    for i in range(len(dLight)):
+        dLight[i] = -1 * dLight[i]
+    intensity = ml.dotProd(normal, dLight)
     
     if intensity <= 0:
         intensity = 0
@@ -350,12 +356,13 @@ def bnWShader(**kwargs):
               u*nA[2] + v*nB[2] + w*nC[2],
               0]
     
-    normal = modelMatrix @ normal
-    normal = normal.tolist()[0]
+    normal = ml.MxV(normal, modelMatrix)
     normal = [normal[0], normal[1], normal[2]]
     
-    dLight = np.array(dLight)
-    intensity = np.dot(normal, -dLight)
+    dLight = list(dLight)
+    for i in range(len(dLight)):
+        dLight[i] = -1 * dLight[i]
+    intensity = ml.dotProd(normal, dLight)
     
     if intensity <= 0:
         intensity = 0
@@ -364,11 +371,12 @@ def bnWShader(**kwargs):
     g = intensity/0.2
     r = intensity/0.2
     
-    camForward = (camMatrix.item(0, 2),
-                  camMatrix.item(1, 2),
-                  camMatrix.item(2, 2))
+    camForward = (camMatrix[0][2],
+                  camMatrix[1][2],
+                  camMatrix[2][2])
     
-    specular = np.dot(np.array(normal), np.array(camForward)) * 0.5
+    
+    specular = ml.dotProd(normal, list(camForward)) * 0.5
     
     # Brillo especular
     if specular < 0:
@@ -413,8 +421,10 @@ def darkGlowShader(**kwargs):
               u*nA[1] + v*nB[1] + w*nC[1],
               u*nA[2] + v*nB[2] + w*nC[2]]
     
-    dLight = np.array(dLight)
-    intensity = np.dot(normal, -dLight)
+    dLight = list(dLight)
+    for i in range(len(dLight)):
+        dLight[i] = -1 * dLight[i]
+    intensity = ml.dotProd(normal, dLight)
     
     if intensity <= 0:
         intensity = 0
@@ -423,11 +433,11 @@ def darkGlowShader(**kwargs):
     g *= intensity
     r *= intensity
     
-    camForward = (camMatrix.item(0,2),
-                  camMatrix.item(1,2),
-                  camMatrix.item(2,2))
+    camForward = (camMatrix[0][2],
+                  camMatrix[1][2],
+                  camMatrix[2][2])
     
-    glowAmount = 1 - np.dot(normal, camForward)
+    glowAmount = 1 - ml.dotProd(normal, camForward)
     
     if glowAmount <= 0: 
         glowAmount = 0
@@ -478,35 +488,39 @@ def normalMapShader(**kwargs):
               u*nA[2] + v*nB[2] + w*nC[2],
               0]
     
-    normal = modelMatrix @ normal
-    normal = normal.tolist()[0]
+    normal = ml.MxV(normal, modelMatrix)
     normal = [normal[0], normal[1], normal[2]]
     
-    dLight = np.array(dLight)
+    dLight = list(dLight)
     
     if normalMap:
         texNormal= normalMap.getColor(tU, tV)
         texNormal = [texNormal[0]*2-1, texNormal[1]*2-1, texNormal[2]*2-1]
-        texNormal = texNormal / np.linalg.norm(texNormal)
+        texNormal = ml.normalizeV(texNormal)
         
-        bitangent = np.cross(normal, tangent)
-        bitangent = bitangent / np.linalg.norm(bitangent)
+        bitangent = ml.crossProd(normal, tangent)
+        bitangent = ml.normalizeV(bitangent)
         
-        tangent = np.cross(normal, bitangent)
-        tangent = tangent / np.linalg.norm(tangent)
+        tangent = ml.crossProd(normal, bitangent)
+        tangent = ml.normalizeV(tangent)
         
-        tangentMatrix = np.matrix([[tangent[0],bitangent[0],normal[0]],
+        tangentMatrix = [[tangent[0],bitangent[0],normal[0]],
                                   [tangent[1],bitangent[1],normal[1]],
-                                  [tangent[2],bitangent[2],normal[2]]])
+                                  [tangent[2],bitangent[2],normal[2]]]
         
-        texNormal = tangentMatrix @ texNormal
-        texNormal = texNormal.tolist()[0]
-        texNormal = texNormal / np.linalg.norm(texNormal)
+        texNormal = ml.MxV(texNormal, tangentMatrix)
+        texNormal = ml.normalizeV(texNormal)
         
-        intensity = intensity = np.dot(texNormal, -dLight)
+        dLight = list(dLight)
+        for i in range(len(dLight)):
+            dLight[i] = -1 * dLight[i]
+        intensity = ml.dotProd(normal, dLight)
         
     else:
-        intensity = np.dot(normal, -dLight)
+        dLight = list(dLight)
+        for i in range(len(dLight)):
+            dLight[i] = -1 * dLight[i]
+        intensity = ml.dotProd(normal, dLight)
     
     b *= intensity
     g *= intensity
@@ -548,12 +562,13 @@ def negativeShader(**kwargs):
               u*nA[2] + v*nB[2] + w*nC[2],
               0]
     
-    normal = modelMatrix @ normal
-    normal = normal.tolist()[0]
+    normal = ml.MxV(normal, modelMatrix)
     normal = [normal[0], normal[1], normal[2]]
     
-    dLight = np.array(dLight)
-    intensity = np.dot(normal, -dLight)
+    dLight = list(dLight)
+    for i in range(len(dLight)):
+        dLight[i] = -1 * dLight[i]
+    intensity = ml.dotProd(normal, dLight)
     
     b *= intensity/0.2
     g *= intensity/0.2
